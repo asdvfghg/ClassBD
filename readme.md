@@ -1,6 +1,6 @@
 # Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noise (ClassBD)
 ## Overview
-This is the offical repository of the manuscript "Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noises"
+This is the official repository of the manuscript "Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noises"
 
 In this work,
 
@@ -8,7 +8,7 @@ In this work,
     
 2. We develop a unified framework -- ClassBD -- to integrate BD and deep learning classifiers. By employing a deep learning classifier to guide the learning of BD filters, we transition from the conventional unsupervised BD optimization to supervised learning. The fault labels supply useful information in guiding the BD to extract class-distinguishing features amidst background noise. To the best of our knowledge, this is the first BD method of its kind to achieve bearing fault diagnosis under heavy noise while providing good interpretability.
 
-**We will release our code after this manuscript being accepted.**
+**We will release our code after this manuscript is accepted.**
 
 ## Citing
 Coming soon
@@ -20,8 +20,7 @@ Coming soon
 The proposed framework, as illustrated in Figure 1, primarily consists of two BD filters, namely a time domain quadratic convolutional filter and a frequency domain linear filter. These filters serve as a plug-and-play denoising module, and they are designed to perform the same function as conventional BD methods to ensure that the output is in the same dimension as the input.
 1. The time domain filter is characterized by two symmetric quadratic convolutional neural network (QCNN) layers. A 16-channel QCNN is employed to filter the input signal (1 $\times$ 2048), and an inverse QCNN layer is used to fuse the 16 channels into one for recovering the input signal.
     
-    The frequency domain filter, on the other hand, starts with the fast Fourier transform (FFT) with an emphasis on highlighting the discrete frequency components. Subsequently, a linear neural layer filters the frequency domain of the signals, and the inverse FFT (IFFT) is conducted to recover the time domain signal. Moreover, an objective function in the envelope spectrum (ES) is designed for optimization.
-\end{enumerate}
+2. The frequency domain filter, on the other hand, starts with the fast Fourier transform (FFT) with an emphasis on highlighting the discrete frequency components. Subsequently, a linear neural layer filters the frequency domain of the signals, and the inverse FFT (IFFT) is conducted to recover the time domain signal. Moreover, an objective function in the envelope spectrum (ES) is designed for optimization.
 
 
 
