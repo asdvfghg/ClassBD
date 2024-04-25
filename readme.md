@@ -13,8 +13,18 @@ In this work,
 **We will release our code after this manuscript is accepted.**
 
 ## Citing
-Coming soon
+If you find this repo useful for your research, please consider citing it:
 
+'''
+@misc{liao2024classifierguided,
+      title={Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noise}, 
+      author={Jing-Xiao Liao and Chao He and Jipu Li and Jinwei Sun and Shiping Zhang and Xiaoge Zhang},
+      year={2024},
+      eprint={2404.15341},
+      archivePrefix={arXiv},
+      primaryClass={eess.SP}
+}
+'''
 
 ## Methodology
 
