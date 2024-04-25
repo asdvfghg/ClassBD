@@ -1,6 +1,8 @@
 # Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noise (ClassBD)
 ## Overview
-This is the official repository of the manuscript "Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noises"
+This is the official repository of the manuscript "Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noises" 
+
+Here is the preprint version [Paper](https://arxiv.org/pdf/2404.15341.pdf)
 
 In this work,
 
