@@ -1,8 +1,8 @@
 # Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noise (ClassBD)
 ## Overview
-This is the official repository of the manuscript "Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noises" 
+This is the official repository of the manuscript "Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noises" [Paper](https://www.sciencedirect.com/science/article/pii/S0888327024006484)
 
-Here is the preprint version [Paper](https://arxiv.org/pdf/2404.15341.pdf)
+
 
 In this work,
 
@@ -10,20 +10,25 @@ In this work,
     
 2. We develop a unified framework -- ClassBD -- to integrate BD and deep learning classifiers. By employing a deep learning classifier to guide the learning of BD filters, we transition from the conventional unsupervised BD optimization to supervised learning. The fault labels supply useful information in guiding the BD to extract class-distinguishing features amidst background noise. To the best of our knowledge, this is the first BD method of its kind to achieve bearing fault diagnosis under heavy noise while providing good interpretability.
 
-**We will release our code after this manuscript is accepted.**
+
+## To do list
+- ~~Module File~~
+- Full Code
+- Detailed Readme
 
 ## Citing
 If you find this repo useful for your research, please consider citing it:
 
 ```
-@misc{liao2024classifierguided,
-      title={Classifier-guided neural blind deconvolution: a physics-informed denoising module for bearing fault diagnosis under heavy noise}, 
-      author={Jing-Xiao Liao and Chao He and Jipu Li and Jinwei Sun and Shiping Zhang and Xiaoge Zhang},
-      year={2024},
-      eprint={2404.15341},
-      archivePrefix={arXiv},
-      primaryClass={eess.SP}
-}
+@article{LIAO2025111750,
+title = {Classifier-guided neural blind deconvolution: A physics-informed denoising module for bearing fault diagnosis under noisy conditions},
+journal = {Mechanical Systems and Signal Processing},
+volume = {222},
+pages = {111750},
+year = {2025},
+issn = {0888-3270},
+doi = {https://doi.org/10.1016/j.ymssp.2024.111750},
+author = {Jing-Xiao Liao and Chao He and Jipu Li and Jinwei Sun and Shiping Zhang and Xiaoge Zhang},
 ```
 
 ## Methodology
