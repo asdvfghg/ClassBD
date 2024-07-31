@@ -16,6 +16,9 @@ In this work,
 - Full Code
 - Detailed Readme
 
+## Updates
+07/31/2024: We have uploaded four neural network files, BDCNN.py, BDMobileNet.py, BDResNet.py, BDTransformer.py, and related ClassBD files for reference. The input signal should be split to (B, 1, 2048).
+
 ## Citing
 If you find this repo useful for your research, please consider citing it:
 
