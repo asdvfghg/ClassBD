@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from fvcore.nn import FlopCountAnalysis, flop_count_str
 import torch.nn.functional as F
-from Model.ConvQuadraticOperation import ConvQuadraticOperation, InverseConvQuadraticOperation
+from Model.ConvQuadraticOperation import ConvQuadraticOperation
 from utils.train_function import group_parameters
 from Model.weight_init import Laplace_fast
 def hilbert(x):
@@ -33,27 +33,6 @@ def hilbert(x):
         x[..., (N + 1) // 2:] = 0
     return torch.fft.ifft(x)
 
-
-def hilbert_transform(signal):
-    N = signal.shape[-1]
-    spectrum = torch.fft.fft(signal)
-    h_spectrum = torch.zeros_like(spectrum)
-    h_spectrum[..., :N // 2] = 2 * spectrum[..., :N // 2]  # double the positive frequency part
-    h_spectrum[..., N // 2 + 1:] = -2 * spectrum[..., N // 2 + 1:]  # double the negative frequency part
-    if N % 2 == 0:
-        h_spectrum[..., N // 2] = spectrum[..., N // 2]  # keep the Nyquist frequency component as is
-    analytic_signal = torch.fft.ifft(h_spectrum)
-
-    # 计算包络谱
-    amplitude_envelope = torch.abs(analytic_signal)
-
-    # 计算相位
-    instantaneous_phase = torch.angle(analytic_signal)
-
-    # 计算频率
-    instantaneous_frequency = torch.diff(instantaneous_phase, dim=-1)
-
-    return amplitude_envelope, instantaneous_frequency
 
 def get_envelope_frequency(x, fs, ret_analytic=False, **kwargs):
     '''
@@ -110,18 +89,16 @@ class CLASSBD(nn.Module):
         self.fs = fs
         self.qtfilter = nn.Sequential(
             nn.AvgPool1d(1, 1),
-            ConvQuadraticOperation(1, 16, 63, 1, 'same'),
+            ConvQuadraticOperation(1, 16, 511, 1, 'same'),
             nn.BatchNorm1d(16),
             nn.ReLU(),
-            ConvQuadraticOperation(16, 1, 63, 1, 'same'),
+            ConvQuadraticOperation(16, 1, 511, 1, 'same'),
             nn.BatchNorm1d(1),
             nn.ReLU(),
             nn.MaxPool1d(1, 1),
             nn.Sigmoid()
         )
         self.filter1 = nn.Linear(l_input, l_input)
-
-        # self.W = nn.Parameter(torch.randn(2, 1))
 
     def funcKurtosis(self, y, halfFilterlength=32):
         y_1 = torch.squeeze(y)
@@ -137,7 +114,6 @@ class CLASSBD(nn.Module):
 
     def g_lplq(self, y, p=2, q=4):
         es_raw_abs, _ = get_envelope_frequency(y, fs=self.fs)
-        # max_product_values = self.process_es(es_raw_abs[:,:,1: es_raw_abs.shape[-1] // 2])
         p = torch.tensor(p)
         q = torch.tensor(q)
         obj = torch.sign(torch.log(q / p)) * (torch.norm(es_raw_abs, p, dim=-1) / torch.norm(es_raw_abs, q, dim=-1)) ** p
@@ -157,8 +133,4 @@ class CLASSBD(nn.Module):
         g = self.g_lplq(es_raw_abs)
 
 
-
-        # l = - self.W[0] * k + self.W[1] * g
-
-
-        return a1, a2, -k, g
+        return a2, -k, g
