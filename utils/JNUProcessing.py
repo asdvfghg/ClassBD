@@ -10,8 +10,7 @@ import numpy as np
 from scipy.fft import fft
 from tqdm import tqdm
 
-from noise_observe import add_audio_noise
-from utils.aug_function import *
+from utils.noise_observe import add_audio_noise
 
 
 

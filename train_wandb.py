@@ -15,7 +15,6 @@ from Model.BDMobileNet import MobileNetV3_Small
 from Model.BDResNet import resnet18
 from Model.BDTransformer import DSCTransformer
 from utils.DatasetLoader import CustomTensorDataset
-from utils.UW import UW
 import torch.nn.functional as F
 
 
@@ -23,9 +22,12 @@ import torch.nn.functional as F
 
 
 use_gpu = torch.cuda.is_available()
+print('GPU: %s' %(use_gpu))
 
-
-
+def UW(losses):
+    loss_scale = nn.Parameter(torch.tensor([-0.5] * 3)).cuda()
+    loss = (losses / (3 * loss_scale.exp()) + loss_scale / 3).sum()
+    return loss
 
 def random_seed(seed):
     torch.manual_seed(seed)
@@ -105,10 +107,11 @@ def train(config, dataloader):
                 classifyloss = loss_func(y_hat, y)
                 losses = torch.zeros(3).cuda()
                 losses[0], losses[1], losses[2]= classifyloss, k, g
+                loss = UW(losses)
 
                 if phase == 'train':
                     optimizer.zero_grad()
-                    loss = UW(losses)
+                    loss.backward()
                     optimizer.step()
                     scheduler.step()
                 loss_total += loss.item()
@@ -194,7 +197,7 @@ def main(config):
     random_seed(config.seed)
 
     if config.path == "Paderborn":
-        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = Paderborn_Processing(file_path=os.path.join('data', config.path), load=config.chosen_dataset, noise=config.add_noise, snr=config.snr)
+        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = Paderborn_Processing(file_path=os.path.join('../ClassBD/data', config.path), load=config.chosen_dataset, noise=config.add_noise, snr=config.snr)
         config.class_num = 14
 
     elif config.path == 'JNU':
@@ -221,7 +224,7 @@ def main(config):
 
 if __name__ == '__main__':
     # wandb initialization, you need to create a wandb account and enter the username in 'entity'
-    wandb.init(project="ClassBD", entity="")
+    wandb.init(project="ClassBD", entity="jing-xiaoliao")
 
     # WandB – Config is a variable that holds and saves hypermarkets and inputs
     config = wandb.config  # Initialize config

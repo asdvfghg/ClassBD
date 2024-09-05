@@ -15,7 +15,6 @@ from Model.BDMobileNet import MobileNetV3_Small
 from Model.BDResNet import resnet18
 from Model.BDTransformer import DSCTransformer
 from utils.DatasetLoader import CustomTensorDataset
-from utils.UW import UW
 
 
 
@@ -23,7 +22,10 @@ from utils.UW import UW
 
 use_gpu = torch.cuda.is_available()
 
-
+def UW(losses):
+    loss_scale = nn.Parameter(torch.tensor([-0.5] * 3)).cuda()
+    loss = (losses / (3 * loss_scale.exp()) + loss_scale / 3).sum()
+    return loss
 
 
 def random_seed(seed):
@@ -54,8 +56,6 @@ def train(config, dataloader):
     net = select_model(config)
     if use_gpu:
         net.cuda()
-    wandb.watch(net, log="all")
-
     train_loss = []
     train_acc = []
     valid_acc = []
@@ -89,10 +89,11 @@ def train(config, dataloader):
                 classifyloss = loss_func(y_hat, y)
                 losses = torch.zeros(3).cuda()
                 losses[0], losses[1], losses[2] = classifyloss, k, g
-
+                loss = UW(losses)
                 if phase == 'train':
                     optimizer.zero_grad()
-                    loss = UW(losses)
+                    # loss = uw.forward(losses)
+                    loss.backward()
                     optimizer.step()
                     scheduler.step()
                 loss_total += loss.item()
@@ -114,13 +115,9 @@ def train(config, dataloader):
             if phase == 'train':
                 train_loss.append(loss_total)
                 train_acc.append(acc)
-                wandb.log({
-                    "Train Accuracy": 100. * acc,
-                    "Train Loss": loss_total})
+
             if phase == 'validation':
                 valid_acc.append(acc)
-                wandb.log({
-                    "Validation Accuracy": 100. * acc})
                 if acc > max_acc:
                     max_acc = acc
                     if not os.path.exists("Models"):
@@ -166,7 +163,7 @@ def inference(dataloader, chosen_model):
         FP = FP.astype(float)
         TN = TN.astype(float)
         FPR = np.mean(FP / (FP + TN))
-        wandb.log({
+        print({
             "F1 Score": F1,
             "FPR": FPR,
             "Recall": recall,
@@ -178,11 +175,11 @@ def main(config):
     random_seed(config['seed'])
 
     if config['dataset'] == "Paderborn":
-        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = Paderborn_Processing(file_path=os.path.join('data', config['dataset']), load=config['chosen_dataset'], noise=config['add_noise'], snr=config['snr'])
+        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = Paderborn_Processing(file_path=os.path.join('../ClassBD/data', config['dataset']), load=config['chosen_dataset'], noise=config['add_noise'], snr=config['snr'])
         config['class_num'] = 14
 
     elif config['dataset'] == 'JNU':
-        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = JNU_Processing(file_path=os.path.join('data', config['dataset']),noise=config['add_noise'], snr=config['snr'])
+        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = JNU_Processing(file_path=os.path.join('../ClassBD/data', config['dataset']),noise=config['add_noise'], snr=config['snr'])
         config['class_num'] = 10
 
 
@@ -191,8 +188,8 @@ def main(config):
     test_dataset = CustomTensorDataset(Test_X, Test_Y)
 
 
-    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=config.batch_size, shuffle=True, drop_last=True)
+    train_loader = DataLoader(train_dataset, batch_size=config['batch_size'], shuffle=True, drop_last=True)
+    valid_loader = DataLoader(valid_dataset, batch_size=config['batch_size'], shuffle=True, drop_last=True)
     data_loaders = {
         "train": train_loader,
         "validation": valid_loader

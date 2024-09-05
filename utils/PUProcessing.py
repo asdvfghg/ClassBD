@@ -10,7 +10,7 @@ from scipy.fft import fft
 from tqdm import tqdm
 import acoustics.generator as ag
 
-from noise_observe import add_audio_noise
+from utils.noise_observe import add_audio_noise
 
 HBdata = ['K001',"K002",'K003','K004','K005','K006']
 RDBdata = ['KA04','KA15','KA16','KA22','KA30','KB23','KB24','KB27','KI14','KI16','KI17','KI18','KI21']
@@ -24,14 +24,11 @@ def Paderborn_Processing(file_path, load, length=2048, use_sliding_window=True, 
 
     # 获得训练集和测试集文件夹下所有.mat文件名
     train_filenames = os.listdir(train_path)
-    # test_filenames = os.listdir(test_path)
-    # 将文件名列表中结尾不是.mat的文件名去掉，防止下面loadmat报错
+
     for i in train_filenames:
         if not i.endswith('.mat'):
             train_filenames.remove(i)
-    # for i in test_filenames:
-    #     if not i.endswith('.mat'):
-    #         test_filenames.remove(i)
+
     def wgn(x, snr):
         snr = 10 ** (snr / 10.0)
         xpower = np.sum(np.absolute(x) ** 2, axis=1) / x.shape[0]
