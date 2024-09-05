@@ -13,11 +13,26 @@ In this work,
 
 ## To do list
 - ~~Module File~~
-- Full Code
+- ~~Full Code~~
 - Detailed Readme
 
 ## Updates
 07/31/2024: We have uploaded four neural network files, BDCNN.py, BDMobileNet.py, BDResNet.py, BDTransformer.py, and related ClassBD files for reference. The input signal should be split to (Batch, 1, 2048). 
+
+09/05/2024: We have uploaded full code. Run train_local.py for fast local test, train_wandb.py for online model management.
+
+**Note**: The dataset should reorgnized as 
+```
+data/Paderborn/N09_M07_F10/....
+data/Paderborn/N15_M01_F10/....
+data/Paderborn/N15_M07_F04/....
+data/Paderborn/N15_M07_F10/....
+```
+and
+```
+data/JNU/....
+```
+or you can download our reorganized PU datasets in [Google Drive PU dataset](https://drive.google.com/drive/folders/16OVVCFeRXSymQMwm05na-g-EmRPlIoFA?usp=drive_link)
 
 ## Citing
 If you find this repo useful for your research, please consider citing it:
