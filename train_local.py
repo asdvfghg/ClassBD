@@ -16,7 +16,6 @@ from Model.BDResNet import resnet18
 from Model.BDTransformer import DSCTransformer
 from utils.DatasetLoader import CustomTensorDataset
 from utils.UW import UW
-import torch.nn.functional as F
 
 
 
@@ -39,31 +38,16 @@ def random_seed(seed):
 
 
 def select_model(config):
-    if config.chosen_model == 'bdresnet':
-        model = resnet18(config.class_num)
-    if config.chosen_model == 'bdmobile':
-        model = MobileNetV3_Small(config.class_num)
-    if config.chosen_model == 'bdtransformer':
-        model = DSCTransformer(num_classes=config.class_num)
-    if config.chosen_model == 'bdcnn':
-        model = BDWDCNN(config.class_num)
+    if config['chosen_model'] == 'bdresnet':
+        model = resnet18(config['class_num'])
+    if config['chosen_model'] == 'bdmobile':
+        model = MobileNetV3_Small(config['class_num'])
+    if config['chosen_model'] == 'bdtransformer':
+        model = DSCTransformer(num_classes=config['class_num'])
+    if config['chosen_model'] == 'bdcnn':
+        model = BDWDCNN(config['class_num'])
     return model
 
-def funcKurtosis(y, halfFilterlength=32):
-    y_1 = torch.squeeze(y)
-    y_1 = y_1[halfFilterlength:-halfFilterlength]
-    y_2 = y_1 - torch.mean(y_1)
-    num = len(y_2)
-    y_num = torch.sum(torch.pow(y_2, 4)) / num
-    std = torch.sqrt(torch.sum(torch.pow(y_2, 2)) / num)
-    y_dem = torch.pow(std, 4)
-    loss = y_num / y_dem
-    return loss
-
-def loss_fn(x, y, target_y):
-    loss_x = -funcKurtosis(x)
-    loss_y = F.cross_entropy(y, target_y)
-    return loss_x, loss_y
 
 
 def train(config, dataloader):
@@ -77,7 +61,7 @@ def train(config, dataloader):
     valid_acc = []
     max_acc = 0
 
-    for e in range(config.epochs):
+    for e in range(config['epochs']):
         for phase in ['train', 'validation']:
             loss = 0
             total = 0
@@ -96,15 +80,15 @@ def train(config, dataloader):
                 y = y.view(-1)
                 if use_gpu:
                     x, y = x.cuda(), y.cuda()
-                optimizer = torch.optim.SGD(net.parameters(), lr=config.lr, momentum=0.9)
+                optimizer = torch.optim.SGD(net.parameters(), lr=config['lr'], momentum=0.9)
 
-                scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.epochs,eta_min=1e-8)
+                scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config['epochs'],eta_min=1e-8)
 
                 loss_func = nn.CrossEntropyLoss()
                 y_hat, k, g = net(x)
                 classifyloss = loss_func(y_hat, y)
                 losses = torch.zeros(3).cuda()
-                losses[0], losses[1], losses[2]= classifyloss, k, g
+                losses[0], losses[1], losses[2] = classifyloss, k, g
 
                 if phase == 'train':
                     optimizer.zero_grad()
@@ -142,7 +126,7 @@ def train(config, dataloader):
                     if not os.path.exists("Models"):
                         os.mkdir('Models')
                     # 存储模型参数
-                    torch.save(net.state_dict(), f'Models/{config.path}_best_checkpoint_{config.chosen_model}.pth')
+                    torch.save(net.state_dict(), f'Models/{config["dataset"]}_best_checkpoint_{config["chosen_model"]}.pth')
                     print("save model")
             print('%s ACC:%.4f' % (phase, acc))
     return net
@@ -150,7 +134,7 @@ def train(config, dataloader):
 
 def inference(dataloader, chosen_model):
     net = select_model(chosen_model)
-    state_dict = torch.load(f'Models/{config.path}_best_checkpoint_{chosen_model}.pth')
+    state_dict = torch.load(f'Models/{config["dataset"]}_best_checkpoint_{config["chosen_model"]}.pth')
     net.load_state_dict(state_dict)
     y_list, y_predict_list = [], []
     if use_gpu:
@@ -191,15 +175,15 @@ def inference(dataloader, chosen_model):
 
 
 def main(config):
-    random_seed(config.seed)
+    random_seed(config['seed'])
 
-    if config.path == "Paderborn":
-        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = Paderborn_Processing(file_path=os.path.join('data', config.path), load=config.chosen_dataset, noise=config.add_noise, snr=config.snr)
-        config.class_num = 14
+    if config['dataset'] == "Paderborn":
+        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = Paderborn_Processing(file_path=os.path.join('data', config['dataset']), load=config['chosen_dataset'], noise=config['add_noise'], snr=config['snr'])
+        config['class_num'] = 14
 
-    elif config.path == 'JNU':
-        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = JNU_Processing(file_path=os.path.join('data', config.path),noise=config.add_noise, snr=config.snr)
-        config.class_num = 10
+    elif config['dataset'] == 'JNU':
+        Train_X, Val_X, Test_X, Train_Y, Val_Y, Test_Y = JNU_Processing(file_path=os.path.join('data', config['dataset']),noise=config['add_noise'], snr=config['snr'])
+        config['class_num'] = 10
 
 
     train_dataset = CustomTensorDataset(Train_X, Train_Y)
@@ -220,27 +204,15 @@ def main(config):
 
 
 if __name__ == '__main__':
-    # wandb initialization, you need to create a wandb account and enter the username in 'entity'
-    wandb.init(project="ClassBD", entity="")
-
-    # WandB – Config is a variable that holds and saves hypermarkets and inputs
-    config = wandb.config  # Initialize config
-    config.log_interval = 200  # how many batches to wait before logging training status
-    config.seed = 42  # random seed (default: 42)
-
-    # Hyperparameters, lr and alpha need to fine-tune
-    config.batch_size = 128  # input batch size for training (default: 64)
-    config.epochs = 200  # number of epochs to train (default: 10)
-    config.lr = 0.5  # learning rate (default: 0.5)
-
-
-    # noisy condition6
-    config.add_noise = 'Gaussian' # Gaussian, pink, Laplace, airplane, truck
-    config.snr = -4 # dB
-
-    # dataset and model
-    config.path = 'Paderborn' # Paderborn JNU
-    config.chosen_dataset = 'N09_M07_F10' # N09_M07_F10; N15_M01_F10; N15_M07_F04; N15_M07_F10;
-    config.chosen_model = 'bdcnn'   # bdcnn, bdresnet, bdtransformer, bdmobile
-
+    config = {'seed': 42,
+              'batch_size': 128,
+              'epochs': 200,
+              'lr': 0.5,
+              'add_noise': 'Gaussian', # Gaussian, pink, Laplace, airplane, truck
+              'snr': -4, #dB
+              'dataset': 'Paderborn', # Paderborn, JNU
+              'chosen_dataset': 'N09_M07_F10', # N09_M07_F10; N15_M01_F10; N15_M07_F04; N15_M07_F10;
+              'chosen_model': 'bdcnn',   # bdcnn, bdresnet, bdtransformer, bdmobile
+              'class_num': 14  # default
+              }
     main(config)
