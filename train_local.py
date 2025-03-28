@@ -208,7 +208,7 @@ if __name__ == '__main__':
               'add_noise': 'Gaussian', # Gaussian, pink, Laplace, airplane, truck
               'snr': -4, #dB
               'dataset': 'Paderborn', # Paderborn, JNU
-              'chosen_dataset': 'N15_M07_F04', # N09_M07_F10; N15_M01_F10; N15_M07_F04; N15_M07_F10;
+              'chosen_dataset': 'N09_M07_F10', # N09_M07_F10; N15_M01_F10; N15_M07_F04; N15_M07_F10;
               'chosen_model': 'bdcnn',   # bdcnn, bdresnet, bdtransformer, bdmobile
               'class_num': 14  # default
               }
