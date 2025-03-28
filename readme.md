@@ -17,6 +17,10 @@ In this work,
 - Detailed Readme
 
 ## Updates
+28/03/2025: We have fixed some bug of the code.
+
+19/02/2025: Fix some parameters of the ClassBD module. This version is faster and accurate.
+
 07/31/2024: We have uploaded four neural network files, BDCNN.py, BDMobileNet.py, BDResNet.py, BDTransformer.py, and related ClassBD files for reference. The input signal should be split to (Batch, 1, 2048). 
 
 09/05/2024: We have uploaded full code. Run train_local.py for fast local test, train_wandb.py for online model management.
