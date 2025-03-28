@@ -147,13 +147,14 @@ def train(config, dataloader):
                     # 存储模型参数
                     torch.save(net.state_dict(), f'Models/{config.path}_best_checkpoint_{config.chosen_model}.pth')
                     print("save model")
+            # torch.save(net.state_dict(), f'Models/{config.path}_best_checkpoint_{config.chosen_model}.pth')
             print('%s ACC:%.4f' % (phase, acc))
     return net
 
 
-def inference(dataloader, chosen_model):
-    net = select_model(chosen_model)
-    state_dict = torch.load(f'Models/{config.path}_best_checkpoint_{chosen_model}.pth')
+def inference(dataloader, config):
+    net = select_model(config)
+    state_dict = torch.load(f'Models/{config.path}_best_checkpoint_{config.chosen_model}.pth')
     net.load_state_dict(state_dict)
     y_list, y_predict_list = [], []
     if use_gpu:
@@ -233,7 +234,7 @@ if __name__ == '__main__':
 
     # Hyperparameters, lr and alpha need to fine-tune
     config.batch_size = 128  # input batch size for training (default: 64)
-    config.epochs = 200  # number of epochs to train (default: 10)
+    config.epochs = 100  # number of epochs to train (default: 10)
     config.lr = 0.5  # learning rate (default: 0.5)
 
 

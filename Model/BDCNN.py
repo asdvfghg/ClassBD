@@ -47,16 +47,6 @@ class BDWDCNN(nn.Module):
         self.cnn.add_module('ReLu_%d' % (nb_patch), nn.ReLU())
         self.cnn.add_module('MAXPool_%d' % (nb_patch), nn.MaxPool1d(2, 2))
 
-    def funcD_norm(self, y, halfFilterlength=32):
-        y_1 = torch.squeeze(y)
-        y_1 = y_1[halfFilterlength:-halfFilterlength]
-        y_2 = y_1 - torch.mean(y_1)
-        y_abs = torch.abs(y_2)
-        y_max = torch.max(y_abs)
-        y_D_norm = torch.norm(y_abs, 2)
-        D_norm = y_max / y_D_norm
-
-        return D_norm
 
 
 
@@ -75,8 +65,8 @@ class BDWDCNN(nn.Module):
 
 
 if __name__ == '__main__':
-    X = torch.rand(1, 1, 2048)
-    m = BDWDCNN()
+    X = torch.rand(10, 1, 2048)
+    m = BDWDCNN(14)
     s = time.time()
     m(X)
     e = time.time()

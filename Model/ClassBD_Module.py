@@ -81,15 +81,15 @@ def get_envelope_frequency(x, fs, ret_analytic=False, **kwargs):
 
 
 class CLASSBD(nn.Module):
-    def __init__(self, l_input=2048, fs=64000) -> object:
+    def __init__(self, l_input=2048, fs=50000) -> object:
         super(CLASSBD, self).__init__()
         self.fs = fs
         self.qtfilter = nn.Sequential(
             nn.AvgPool1d(1, 1),
-            ConvQuadraticOperation(1, 16, 511, 1, 'same'),
+            ConvQuadraticOperation(1, 16, 63, 1, 'same'),
             nn.BatchNorm1d(16),
             nn.ReLU(),
-            ConvQuadraticOperation(16, 1, 511, 1, 'same'),
+            ConvQuadraticOperation(16, 1, 63, 1, 'same'),
             nn.BatchNorm1d(1),
             nn.ReLU(),
             nn.MaxPool1d(1, 1),
@@ -99,7 +99,7 @@ class CLASSBD(nn.Module):
 
     def funcKurtosis(self, y, halfFilterlength=32):
         y_1 = torch.squeeze(y)
-        y_1 = y_1[halfFilterlength:-halfFilterlength]
+        y_1 = y_1[:,halfFilterlength:-halfFilterlength]
         y_2 = y_1 - torch.mean(y_1)
         num = len(y_2)
         y_num = torch.sum(torch.pow(y_2, 4), dim=-1) / num

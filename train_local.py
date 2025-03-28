@@ -40,13 +40,13 @@ def random_seed(seed):
 
 
 def select_model(config):
-    if config['chosen_model'] == 'bdresnet':
+    if config["chosen_model"] == 'bdresnet':
         model = resnet18(config['class_num'])
-    if config['chosen_model'] == 'bdmobile':
+    if config["chosen_model"] == 'bdmobile':
         model = MobileNetV3_Small(config['class_num'])
-    if config['chosen_model'] == 'bdtransformer':
+    if config["chosen_model"] == 'bdtransformer':
         model = DSCTransformer(num_classes=config['class_num'])
-    if config['chosen_model'] == 'bdcnn':
+    if config["chosen_model"] == 'bdcnn':
         model = BDWDCNN(config['class_num'])
     return model
 
@@ -129,8 +129,8 @@ def train(config, dataloader):
     return net
 
 
-def inference(dataloader, chosen_model):
-    net = select_model(chosen_model)
+def inference(dataloader, config):
+    net = select_model(config)
     state_dict = torch.load(f'Models/{config["dataset"]}_best_checkpoint_{config["chosen_model"]}.pth')
     net.load_state_dict(state_dict)
     y_list, y_predict_list = [], []
@@ -208,7 +208,7 @@ if __name__ == '__main__':
               'add_noise': 'Gaussian', # Gaussian, pink, Laplace, airplane, truck
               'snr': -4, #dB
               'dataset': 'Paderborn', # Paderborn, JNU
-              'chosen_dataset': 'N09_M07_F10', # N09_M07_F10; N15_M01_F10; N15_M07_F04; N15_M07_F10;
+              'chosen_dataset': 'N15_M07_F04', # N09_M07_F10; N15_M01_F10; N15_M07_F04; N15_M07_F10;
               'chosen_model': 'bdcnn',   # bdcnn, bdresnet, bdtransformer, bdmobile
               'class_num': 14  # default
               }
